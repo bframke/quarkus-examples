@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<soapenv:Envelope xmlns:csdg="http://xxx" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:typ="http://xxx" xmlns:wsdltype="http://xxx">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <wsdltype:operation1>
+            <typ:context>
+                <csdg:technicalContext>
+                    <csdg:from>xxx</csdg:from>
+                    <csdg:routingInfo>xxx</csdg:routingInfo>
+                    <csdg:messageId>xxx</csdg:messageId>
+                    <csdg:currentSenderTimestampUTC>2019-06-12T09:01:07.790Z</csdg:currentSenderTimestampUTC>
+                    <csdg:expiryOffsetInMillis>10000</csdg:expiryOffsetInMillis>
+                    <csdg:property name="serviceCallNumber">1</csdg:property>
+                </csdg:technicalContext>
+                <csdg:businessContext>
+                    <csdg:processId>xxx</csdg:processId>
+                    <csdg:processTypeId>xxx</csdg:processTypeId>
+                </csdg:businessContext>
+            </typ:context>
+            <typ:data>
+                <typ:someData/>
+            </typ:data>
+        </wsdltype:operation1>
+    </soapenv:Body>
+</soapenv:Envelope>
