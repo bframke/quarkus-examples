@@ -1,0 +1,5 @@
+FROM ubuntu:18.04
+COPY bug-example-0.2.0-runner /application
+COPY libsunec.so /lib64/
+EXPOSE 8080
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Djava.library.path=/lib64"]
