@@ -1,0 +1,115 @@
+plugins {
+    id 'java'
+    id 'com.palantir.graal' version '0.6.0-32-g68fa986'
+    id 'com.palantir.docker' version '0.22.1'
+    id 'com.palantir.docker-run' version '0.22.1'
+    id 'io.quarkus' version "1.0.0.CR2"
+}
+
+String homeDir = System.getenv("HOME")
+
+allprojects {
+    version '0.2.0'
+}
+
+graal {
+    outputName 'camelgraal'
+    graalVersion '19.2.1'
+}
+
+repositories {
+    maven { url = "https://repository.apache.org/snapshots/" }
+    mavenLocal()
+    maven { url = 'http://repo.maven.apache.org/maven2' }
+    maven { url = "https://mvnrepository.com/artifact/io.quarkus/quarkus-gradle-plugin" }
+}
+
+dependencies {
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'io.quarkus', name: 'quarkus-core-deployment', version: "${quarkusVersion}"
+    compile group: 'io.quarkus', name: 'quarkus-jackson', version: "${quarkusVersion}"
+    compile group: 'io.quarkus', name: 'quarkus-smallrye-metrics', version: "${quarkusVersion}"
+    compile group: 'io.quarkus', name: 'quarkus-artemis-core', version: "${quarkusVersion}"
+
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    compile group: 'org.apache.activemq', name: 'artemis-jms-client', version: '2.9.0'
+    compile group: 'org.apache.camel', name: 'camel-core-engine', version: '3.0.0-RC3'
+    compile group: 'org.apache.camel', name: 'camel-sjms', version: '3.0.0-RC3'
+
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-core', version: "0.4.0"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-core-xml', version: "0.4.0"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-sjms', version: "${camelVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-sjms-deployment', version: "${camelVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-sjms-parent', version: "${camelVersion}"
+    implementation group: 'org.conscrypt', name: 'conscrypt-openjdk', version: '2.2.1'
+
+    implementation enforcedPlatform('io.quarkus:quarkus-bom:'+"${quarkusVersion}")
+    implementation("io.quarkus:quarkus-resteasy")
+
+    testCompile group: 'org.junit.jupiter', name:'junit-jupiter-api', version:'5.3.1'
+    testCompile 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.1.0'
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.1.0'
+    testCompile "org.jboss.resteasy:resteasy-client:3.0.14.Final"
+    testCompile "org.jboss.resteasy:resteasy-client-api:3.0.14.Final"
+}
+
+quarkus {
+    String graalVersion = graal.graalVersion.get()
+    buildNative.invokeMethod("setGraalvmHome", homeDir + "/.gradle/caches/com.palantir" +
+            ".graal/${graalVersion}/graalvm-ce-${graalVersion}")
+    buildNative.invokeMethod("setEnableJni", true)
+}
+
+docker {
+    def imageVersion = version
+    if(project.hasProperty("pipelineId")){
+        imageVersion = pipelineId
+    }
+    docker.setName("camel:${imageVersion}")
+    def graalVersion = graal.graalVersion.get()
+    def graalLibsHome = "${homeDir}/.gradle/caches/com.palantir.graal/${graalVersion}/graalvm-ce-${graalVersion}/jre/lib/amd64/"
+    files project.file('src/main/resources/bridge.xml'),
+            project.file('build/camel-producer' + project.version + '-runner'),
+            file("${graalLibsHome}/libsunec.so"),
+            project.file('src/main/resources/keystore.jks'),
+            project.file('src/main/resources/truststore.jks')
+}
+
+docker.dependsOn(buildNative)
+dockerPush.dependsOn 'docker'
+
+task prepareConfigMap() {
+    doFirst{
+        def string = System.getProperty("line.separator")
+        String bridgeXml = file('resources/bridge.xml').getText('UTF-8')
+                .replaceAll(string, string + "    ")
+        String template = file('deployment/camel-bridge.template.yaml').getText('UTF-8')
+        String replacedTemplate = template.replace("REPLACED_BY_BRIDGE_XML", bridgeXml)
+        replacedTemplate = replacedTemplate.stripIndent()
+        file('deployment/camel-bridge.yaml').write(replacedTemplate)
+    }
+
+}
+
+buildNative.doFirst {
+    String graalVersion = graal.graalVersion.get()
+    dockerBuild = "quay.io/quarkus/ubi-quarkus-native-image:${graalVersion}"
+    containerRuntime="docker"
+    println getGraalvmHome()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task unitTest (type: Test) {
+    include '**/Test*.class'
+    testLogging {
+        events "PASSED", "STARTED", "FAILED", "SKIPPED"
+    }
+}
+

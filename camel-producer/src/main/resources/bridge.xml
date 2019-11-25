@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://camel.apache.org/schema/spring"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.20.2.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- ============== -->
+    <!-- NoN SSL Routes -->
+    <!-- ============== -->
+
+    <route id="bridge_TEST.AMQ.PLAIN.TO.AMQ.PLAIN">
+        <from uri="jms:queue://TO_REMOTE?disableReplyTo=true&amp;acknowledgementModeName=CLIENT_ACKNOWLEDGE&amp;connectionFactory=#amqConnectionFactoryPlain"/>
+        <to uri="jms:queue://FROM_REMOTE?connectionFactory=#amqConnectionFactoryPlain&amp;streamMessageTypeEnabled=true" pattern="InOnly"/>
+    </route>
+
+    <!-- ========== -->
+    <!-- SSL Routes -->
+    <!-- ==========
+
+    <route id="bridge_TEST.AMQ.SSL.TO.AMQ.SSL">
+        <from uri="jms:queue://TO_REMOTE_SSL?disableReplyTo=true&amp;acknowledgementModeName=CLIENT_ACKNOWLEDGE&amp;connectionFactory=#amqConnectionFactory"/>
+        <to uri="jms:queue://FROM_REMOTE_SSL?connectionFactory=#amqConnectionFactory" pattern="InOnly"/>
+    </route>-->
+
+</routes>
+

@@ -103,3 +103,10 @@ task saveDocker (type: Exec, dependsOn: ['docker']) {
     executable 'docker'
     args 'image', 'save', docker.getName(), '-o', "${buildDir}/bug-example-image-${version}.tar"
 }
+
+buildNative {
+    additionalBuildArgs = [
+            "-H:ReflectionConfigurationFiles=${buildDir}/resources/main/reflect-config.json".toString(),
+            "-H:ResourceConfigurationFiles=${buildDir}/resources/main/resource-config.json".toString()
+    ]
+}
