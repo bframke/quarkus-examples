@@ -1,0 +1,71 @@
+import org.gradle.api.tasks.Exec
+
+plugins {
+    id 'java'
+    id 'com.palantir.graal' version '0.6.0-69-ga9559b9'
+    id 'io.quarkus' version "${quarkusVersion}"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation group: 'io.quarkus', name: 'quarkus-core-deployment', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-jackson', version: "${quarkusVersion}"
+
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-core', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-kafka', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-log', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-direct', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-bean', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-netty-http', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-rest', version: "${camelQuarkusVersion}"
+
+    implementation enforcedPlatform('io.quarkus:quarkus-bom:'+"${quarkusVersion}")
+}
+
+version = "0.1.0"
+String homeDir = System.getenv("HOME")
+graal {
+    outputName 'producergraal'
+    graalVersion '19.2.1'
+}
+
+quarkus {
+    String graalVersion = graal.graalVersion.get()
+    buildNative.invokeMethod("setGraalvmHome", homeDir + "/.gradle/caches/com.palantir" +
+            ".graal/${graalVersion}/graalvm-ce-${graalVersion}")
+    buildNative.invokeMethod("setEnableJni", true)
+}
+
+buildNative.doFirst {
+    String graalVersion = graal.graalVersion.get()
+    dockerBuild = "quay.io/quarkus/ubi-quarkus-native-image:${graalVersion}"
+    containerRuntime="docker"
+    println getGraalvmHome()
+}
+
+task installDockerCompose(type: Exec) {
+    commandLine './install-docker-compose.sh'
+}
+
+task startKafka(type: Exec) {
+    commandLine './start-kafka.sh'
+}
+
+task stopKafka(type: Exec) {
+    commandLine './stop-kafka.sh'
+}
+
+task restartKafka(type: Exec) {
+    commandLine './restart-kafka.sh'
+}
+task unitTest (type: Test) {
+    useJUnitPlatform()
+    include '**/Test*.class'
+    testLogging {
+        events "PASSED", "STARTED", "FAILED", "SKIPPED"
+    }
+}
