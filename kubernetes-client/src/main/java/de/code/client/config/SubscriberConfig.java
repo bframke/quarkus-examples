@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class SubscriberConfig {
-    @ConfigProperty(name = "horizon.kafka.broker.list")
+    @ConfigProperty(name = "kubernetes-client.kafka.broker.list")
     Optional<String> kafkaBrokers;
 
     public String getKafkaBrokers() {

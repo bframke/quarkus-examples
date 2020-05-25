@@ -21,7 +21,7 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: HORIZON_KAFKA_BROKER_LIST
+            - name: KUBERNETES_CLIENT_KAFKA_BROKER_LIST
               value: strimzi-cluster-kafka-bootstrap.strimzi.svc.cluster.local:9092
 ---
 apiVersion: v1
