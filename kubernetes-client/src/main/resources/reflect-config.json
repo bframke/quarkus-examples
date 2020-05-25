@@ -1,0 +1,19 @@
+[
+  {
+    "name": "de.telekom.horizon.camel.RoutesMultiplexer",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "de.telekom.horizon.kafka.MessageEnvelope",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true
+  }
+
+]

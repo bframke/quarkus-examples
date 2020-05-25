@@ -1,0 +1,80 @@
+plugins {
+    id 'java'
+    id 'io.quarkus' version "${quarkusPlatformVersion}"
+    id 'com.palantir.docker' version '0.24.0'
+    id 'com.palantir.docker-run' version '0.24.0'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'io.quarkus:quarkus-resteasy-jsonb'
+    implementation group: 'io.quarkus', name: 'quarkus-kubernetes-client', version: "${quarkusPluginVersion}"
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation group: 'io.quarkus', name: 'quarkus-core-deployment', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-jackson', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-hibernate-validator', version: "${quarkusVersion}"
+    implementation enforcedPlatform('io.quarkus:quarkus-bom:'+"${quarkusVersion}")
+    implementation group: 'io.quarkus', name: 'quarkus-resteasy-jackson', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-resteasy', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-smallrye-openapi', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-smallrye-metrics', version: "${quarkusVersion}"
+    implementation group: 'io.quarkus', name: 'quarkus-smallrye-opentracing', version: "${quarkusVersion}"
+
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    implementation group: 'com.sun.xml.bind', name: 'jaxb-impl', version: '2.1'
+
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-core', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-kafka', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-log', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-direct', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-bean', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-netty-http', version: "${camelQuarkusVersion}"
+    implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-rest', version: "${camelQuarkusVersion}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+version '0.2.0'
+
+docker {
+    def imageVersion = project.version
+    if(project.hasProperty("pipelineId")){
+        imageVersion = pipelineId
+    }
+    docker.setName("${rootProject.name}:${imageVersion}")
+    // Use for Native File for Docker Image
+    //dockerfile project.file("src/main/docker/Dockerfile.native")
+    //files project.file("build/${project.name}-${project.version}-runner")
+    // Use for Jar File for Docker Image
+    dockerfile project.file("src/main/docker/Dockerfile.jvm")
+    files project.file("build/${project.name}-${project.version}-runner.jar")
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+quarkusBuild.doFirst {
+    uberJar = true
+}

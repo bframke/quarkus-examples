@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-client
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kube-client
+  template:
+    metadata:
+      labels:
+        app: kube-client
+    spec:
+      serviceAccountName: kube-client-account
+      containers:
+        - name: kube-client-container
+          #image: registry/repo-name/kubernetes-client:0.2.0
+          image: kubernetes-client:0.2.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: HORIZON_KAFKA_BROKER_LIST
+              value: strimzi-cluster-kafka-bootstrap.strimzi.svc.cluster.local:9092
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-client
+  labels:
+    app: kube-client
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: kube-client
