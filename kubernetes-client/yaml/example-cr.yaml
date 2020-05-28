@@ -1,4 +1,4 @@
-apiVersion: subscriber/v1
+apiVersion: subscriber.de/v1
 kind: Subscription
 metadata:
   name: example-subscription1

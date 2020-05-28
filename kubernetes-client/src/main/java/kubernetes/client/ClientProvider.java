@@ -21,9 +21,9 @@ public class ClientProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientProvider.class);
 
-    private static final String CUSTOM_API_VERSION = "subscriber/v1";
+    private static final String CUSTOM_API_VERSION = "subscriber.de/v1";
     private static final String CUSTOM_KIND = "Subscription";
-    private static final String CUSTOM_DEFINITION_NAME = "subscriptions.subscriber";
+    private static final String CUSTOM_DEFINITION_NAME = "subscriptions.subscriber.de";
 
     @Produces
     @Singleton
