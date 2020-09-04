@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+    id 'application'
+	id 'io.quarkus' version "${quarkusPlatformVersion}"
+}
+
+repositories {
+	mavenCentral()
+    jcenter()
+}
+
+version '0.1.0'
+
+dependencies {
+	implementation group: "${quarkusPlatformGroupId}", name: 'quarkus-core-deployment', version: "${quarkusVersion}"
+	implementation group: "${quarkusPlatformGroupId}", name: 'quarkus-jackson', version: "${quarkusVersion}"
+	implementation group: "${quarkusPlatformGroupId}", name: 'quarkus-hibernate-validator', version: "${quarkusVersion}"
+	
+	implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-kafka', version: "${camelQuarkusVersion}"
+	implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-log', version: "${camelQuarkusVersion}"
+	implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-direct', version: "${camelQuarkusVersion}"
+	implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-bean', version: "${camelQuarkusVersion}"
+	implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-netty-http', version: "${camelQuarkusVersion}"
+	implementation group: 'org.apache.camel.quarkus', name: 'camel-quarkus-rest', version: "${camelQuarkusVersion}"
+	
+	implementation enforcedPlatform("${quarkusPlatformGroupId}:quarkus-bom:${quarkusVersion}")
+	implementation group: "${quarkusPlatformGroupId}", name: 'quarkus-resteasy-jackson', version: "${quarkusVersion}"
+	implementation group: "${quarkusPlatformGroupId}", name: 'quarkus-resteasy', version: "${quarkusVersion}"
+	implementation group: "${quarkusPlatformGroupId}", name: 'quarkus-resteasy-jsonb', version: "${quarkusVersion}"
+	implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
+	
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+test {
+    useJUnitPlatform()
+}

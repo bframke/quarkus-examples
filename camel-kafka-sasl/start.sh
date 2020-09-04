@@ -1,0 +1,1 @@
+gradle -Djava.security.auth.login.config=${pwd}/kafka/kafka_client_jaas.conf quarkusdev

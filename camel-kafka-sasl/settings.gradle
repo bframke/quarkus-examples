@@ -1,0 +1,10 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'camel-kafka-sasl'
